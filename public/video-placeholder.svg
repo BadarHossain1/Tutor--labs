@@ -1,0 +1,26 @@
+<svg width="800" height="450" viewBox="0 0 800 450" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0f172a"/>
+      <stop offset="100%" stop-color="#1f2937"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="450" fill="url(#g)"/>
+  <g opacity="0.9">
+    <circle cx="400" cy="225" r="54" fill="#ffffff" fill-opacity="0.85"/>
+    <polygon points="388,205 430,225 388,245" fill="#111827"/>
+  </g>
+</svg><svg xmlns="http://www.w3.org/2000/svg" width="1200" height="1600" viewBox="0 0 1200 1600" role="img" aria-label="Video placeholder">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#0b1220"/>
+      <stop offset="100%" stop-color="#111827"/>
+    </linearGradient>
+    <filter id="shadow" x="-50%" y="-50%" width="200%" height="200%">
+      <feDropShadow dx="0" dy="8" stdDeviation="16" flood-color="#000" flood-opacity="0.3"/>
+    </filter>
+  </defs>
+  <rect width="1200" height="1600" fill="url(#g)"/>
+  <circle cx="600" cy="800" r="96" fill="#E5E7EB" filter="url(#shadow)"/>
+  <polygon points="580,760 580,840 640,800" fill="#111827"/>
+</svg>
