@@ -1,33 +1,57 @@
-import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
-import { NextResponse } from "next/server";
+import { NextResponse } from 'next/server';
+import type { NextRequest } from 'next/server';
 
-const isProtectedRoute = createRouteMatcher([
-	"/dashboard(.*)",
-	"/profile(.*)",
-	"/courses(.*)",
-]);
+export function middleware(request: NextRequest) {
+	const url = request.nextUrl.clone();
+	const pathname = url.pathname;
 
-const hasClerk = !!process.env.CLERK_SECRET_KEY && !!process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY;
-
-export default clerkMiddleware(async (auth, req) => {
-	// Bypass auth entirely if Clerk isn't configured
-	if (!hasClerk) {
+	// Skip static files and Next.js internals
+	if (
+		pathname.startsWith('/_next') ||
+		pathname.startsWith('/api') ||
+		pathname.includes('.') ||
+		pathname === '/favicon.ico'
+	) {
 		return NextResponse.next();
 	}
 
-	const url = new URL(req.url);
+	// Check for authentication token in cookies
+	const sessionToken = request.cookies.get('__session')?.value ||
+		request.cookies.get('__clerk_db_jwt')?.value ||
+		request.cookies.get('__clerk_session')?.value;
 
-	if (isProtectedRoute(req)) {
-		const { userId } = await auth();
-		if (!userId) {
-			const redirect = encodeURIComponent(url.pathname + (url.search || ""));
-			return NextResponse.redirect(new URL(`/login?redirect=${redirect}`, url));
-		}
+	// Protected routes
+	const protectedRoutes = ['/dashboard'];
+	const isProtectedRoute = protectedRoutes.some(route => pathname.startsWith(route));
+
+	if (isProtectedRoute && !sessionToken) {
+		// Redirect to login if accessing protected route without authentication
+		url.pathname = '/login';
+		url.searchParams.set('redirect', pathname);
+		return NextResponse.redirect(url);
+	}
+
+	// Redirect authenticated users away from auth pages
+	const authRoutes = ['/login', '/register'];
+	const isAuthRoute = authRoutes.includes(pathname);
+
+	if (isAuthRoute && sessionToken) {
+		url.pathname = '/dashboard';
+		return NextResponse.redirect(url);
 	}
 
 	return NextResponse.next();
-});
+}
 
 export const config = {
-	matcher: ["/((?!.*\\..*|_next).*)", "/(api|trpc)(.*)"],
+	matcher: [
+		/*
+		 * Match all request paths except for the ones starting with:
+		 * - api (API routes)
+		 * - _next/static (static files)
+		 * - _next/image (image optimization files)
+		 * - favicon.ico (favicon file)
+		 */
+		'/((?!api|_next/static|_next/image|favicon.ico).*)',
+	],
 };
